@@ -15,27 +15,35 @@
 
 int WaitingVehicles::getSize()
 {
+    _mutex.lock();
     return _vehicles.size();
+    _mutex.unlock();
 }
 
 void WaitingVehicles::pushBack(std::shared_ptr<Vehicle> vehicle, std::promise<void> &&promise)
 {
+    _mutex.lock();
+
     _vehicles.push_back(vehicle);
     _promises.push_back(std::move(promise));
+   
+    _mutex.unlock();
 }
 
 void WaitingVehicles::permitEntryToFirstInQueue()
 {
+   _mutex.lock();
+
     // get entries from the front of both queues
     auto firstPromise = _promises.begin();
     auto firstVehicle = _vehicles.begin();
-
     // fulfill promise and send signal back that permission to enter has been granted
     firstPromise->set_value();
-
     // remove front elements from both queues
     _vehicles.erase(firstVehicle);
     _promises.erase(firstPromise);
+
+    _mutex.unlock();
 }
 
 /* Implementation of class "Intersection" */
