@@ -37,6 +37,7 @@ protected:
 
 private:
     static int _idCnt; // global variable for counting object ids
+    static std::mutex _mtxCout;  // TASK L3.2: add static mutex on class TrafficObject
 };
 
 #endif
