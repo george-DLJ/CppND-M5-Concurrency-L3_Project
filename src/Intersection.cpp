@@ -15,25 +15,30 @@
 
 int WaitingVehicles::getSize()
 {
-    _mutex.lock();
+    // When I add these mutexes on this function a Deadlock happens! (any car is entering the main intersection)
+    // Why is the deadlock happening? 
+    // I did call the mutexes always in same order as stated in lessons (Deadlock 2 example)
+    // but something is not working and I don't understand what I am doing wrong.
+    //_mutex1.lock(); //DON'T DO THIS! will stay blocked after function returns!
+    std::lock_guard<std::mutex> lg(_mutex1);
     return _vehicles.size();
-    _mutex.unlock();
+
 }
 
 void WaitingVehicles::pushBack(std::shared_ptr<Vehicle> vehicle, std::promise<void> &&promise)
 {
-    _mutex.lock();
-
+    _mutex1.lock(); //lock all resources
+    _mutex2.lock();
     _vehicles.push_back(vehicle);
     _promises.push_back(std::move(promise));
-   
-    _mutex.unlock();
+    _mutex2.unlock(); //unlock all resources
+    _mutex1.unlock(); 
 }
 
 void WaitingVehicles::permitEntryToFirstInQueue()
 {
-   _mutex.lock();
-
+    _mutex1.lock(); // Lock both resources:
+    _mutex2.lock();
     // get entries from the front of both queues
     auto firstPromise = _promises.begin();
     auto firstVehicle = _vehicles.begin();
@@ -43,7 +48,8 @@ void WaitingVehicles::permitEntryToFirstInQueue()
     _vehicles.erase(firstVehicle);
     _promises.erase(firstPromise);
 
-    _mutex.unlock();
+    _mutex2.unlock(); //unlock all resources
+    _mutex1.unlock();
 }
 
 /* Implementation of class "Intersection" */
