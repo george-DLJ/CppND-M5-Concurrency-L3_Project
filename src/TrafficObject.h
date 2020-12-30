@@ -34,10 +34,11 @@ protected:
     int _id;                          // every traffic object has its own unique id
     double _posX, _posY;              // vehicle position in pixels
     std::vector<std::thread> threads; // holds all threads that have been launched within this object
+    static std::mutex _mtxCout;  // TASK L3.2: add static mutex on class TrafficObject (Protected so it can be used by inherited clasess!)
 
 private:
     static int _idCnt; // global variable for counting object ids
-    static std::mutex _mtxCout;  // TASK L3.2: add static mutex on class TrafficObject
+
 };
 
 #endif
